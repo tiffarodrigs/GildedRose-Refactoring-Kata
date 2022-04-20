@@ -11,7 +11,7 @@ class Shop {
     this.items = items;
   }
 
-  updateQuality1() {
+  updateQuality() {
     
     // -Once the sell by date has passed, Quality degrades twice as fast
     // -The Quality of an item is never negative
@@ -23,40 +23,62 @@ class Shop {
 	  // Quality drops to 0 after the concert
 
     this.items = this.items.map((item) => {
+
+      //"Sulfuras", being a legendary item, never has to be sold or decreases in Quality
       if(item.name == "Sulfuras, Hand of Ragnaros") {
         return item;
       }
 
       
       item.sellIn = item.sellIn - 1;
-      if(item.name=="Aged Brie" && item.quality <= 50 ) {
+
+      // The Quality of an item is never more than 50
+      if(item.quality >=50 )
+      {
+        item.quality = 50
+      }
+      //At the end of each day our system lowers both values for every item
+      if(item.quality < 50 && item.name != "Aged Brie" && item.name != "Backstage")
+      {
+        if( item.sellIn > 0 ){
+          if(item.quality >= 0) {
+            item.quality = item.quality - 1;
+          }
+          else {
+            item.quality = 0; // Quality can never be negative
+          }
+        }
+
+        //Once the sell by date has passed, Quality degrades twice as fast
+        if(item.sellIn < 0 ) {
+          if(item.quality >= 2) {
+          item.quality = item.quality - 2
+          } else {
+            item.quality = 0; // Quality can never be negative
+          }
+        }
+      }
+
+      //"Aged Brie" actually increases in Quality the older it gets
+      if(item.name=="Aged Brie" && item.quality <= 49 ) {
         item.quality = item.quality + 1;
       }
-      if(item.sellIn < 0) {
-        if(item.quality >= 2) {
-        item.quality = item.quality - 2
-        } else {
-          item.quality = 0;
-        }
-      }
-      if(item.name == "Backstage passes to a TAFKAL80ETC concert"){
+
+      /*Quality increases by 2 when there are 10 days or less 
+      and by 3 when there are 5 days or less but*/
+      if(item.name == "Backstage"){
         if(item.sellIn > 0){
           item.quality = item.quality + 1;
-          if(item.name == "Backstage passes to a TAFKAL80ETC concert" && item.sellIn <= 10){
-            item.quality = ietm.quality + 1;
+          if(item.name == "Backstage" && item.sellIn <= 10){
+            item.quality = item.quality + 1;
             if(item.sellIn <= 5){
-            item.quality = ietm.quality + 1;
+            item.quality = item.quality + 1;
             }
           }
-        } else {
-          item.quality = 0;
-        }
-      } else if(item.name == "Aged Brie"){
-
-      }
+        } 
+      } 
       return item;
     });
-
     return this.items;
   }
 
